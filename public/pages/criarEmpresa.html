@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../assets/styles/style.css">
+    <script src="../assets/JS/jquery-3.7.1.min.js"></script>
+    <script src="../assets/JS/carhartl-jquery-cookie-92b7715/jquery.cookie.js"></script>
+    <script src="../assets/JS/jQuery-Mask-Plugin-master/src/jquery.mask.js"></script>
+    <title>Green Place</title>
+</head>
+<body>
+    <header class="index_header">
+        <h1>Green Place</h1>
+        <section class="action">
+            <a href="">
+                <img width="50" height="50" src="https://img.icons8.com/pulsar-color/50/shopping.png" alt="shopping"/>
+            </a>
+        </section>
+    </header>
+    <main class="main_criarEmpresa">
+        <form class="form_criarEmpresa" method="post">
+            <header>
+                Cadastrar Empresa
+            </header>
+            <label for="Nome">Nome</label>
+            <input placeholder="Digite o nome da empresa" required type="text" id="nome" name="nome">
+            <label for="cnpj">CNPJ</label>
+            <input placeholder="Digite o cnpj da empresa" required type="text" name="cnpj" id="cnpj">
+            <button type="submit">Cadastrar</button>
+            <p class="error"></p>
+        </form>
+    </main>
+
+    <script>
+        const user_id = $.cookie("user_id");
+    
+        if(!user_id){
+            window.location.href = "/pages/login.html";
+        }
+
+        function validateCNPJ(cnpj) {
+            cnpj = cnpj.replace(/[^\d]+/g, '');
+
+            if (cnpj.length !== 14) {
+                return false;
+            }
+            if (/^(\d)\1+$/.test(cnpj)){
+                return false;
+            }
+            const validarDigito = (cnpj, pesoInicial) => {
+                let soma = 0;
+                let peso = pesoInicial;
+
+                for (let i = 0; i < cnpj.length; i++) {
+                    soma += cnpj[i] * peso;
+                    peso--;
+                    if (peso < 2) peso = 9;
+                }
+
+                const resto = soma % 11;
+                return resto < 2 ? 0 : 11 - resto;
+            };
+
+            const cnpjBase = cnpj.slice(0, 12);
+            const digito1 = validarDigito(cnpjBase, 5);
+            const digito2 = validarDigito(cnpjBase + digito1, 6);
+
+            return cnpj.endsWith(`${digito1}${digito2}`);
+        }
+
+        $("#cnpj").mask("00.000.000/0000-00")
+        $(".form_criarEmpresa").on("submit", function(e){
+            e.preventDefault();
+
+            if(!validateCNPJ($("#cnpj").val())){
+                e.preventDefault();
+                $(".error").text("CNPJ inválido !");
+                $(".error").css("display","block");
+            }
+
+            const data = JSON.stringify({
+                "nome": $("#nome").val(),
+                "cnpj": String($("#cnpj").val()).replace(/[./-]/g, ''),
+                "user_id": Number(user_id)
+            })
+
+            $.ajax({
+                "url": "http://localhost:8080/registerEmpresa",
+                "method": "POST",
+                "data": data,
+                "success": function(data){
+                    console.log(data);
+                    if(data.registrado){
+                        window.location.href = "/pages/empresa.html";
+                    }
+                },
+                "error": function (error) { 
+                    console.log(error);
+                 }
+            })
+
+        })
+    </script>
+</body>
+</html>

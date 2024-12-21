@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../assets/styles/style.css">
+    <script src="../assets/JS/jquery-3.7.1.min.js"></script>
+    <script src="../assets/JS/jQuery-Mask-Plugin-master/src/jquery.mask.js"></script>
+    <title>Green Place</title>
+</head>
+<body>
+    <article class="register_container">
+        <form method="post">
+            <header>
+                <h1>Registro</h1>
+            </header>
+            <label for="nome">Nome:</label>
+            <input placeholder="Digite o seu nome" required name="nome" type="text" id="nome"/>
+            <label for="email">Email:</label>
+            <input placeholder="Digite o seu email" required name="email" type="email" id="email"/>
+            <label for="senha">Senha:</label>
+            <input placeholder="Digite a sua senha" required name="senha" type="password" id="senha"/>
+            <label for="cpf">CPF:</label>
+            <input placeholder="Digite o seu cpf" required name="cpf" type="text" id="cpf"/>
+            <button type="submit">Registrar-se</button>
+            <p class="error"></p>
+        </form>
+    </article>
+    
+
+    <script>
+
+    function validateCpf(cpf) {
+        cpf = cpf.replace(/[^\d]+/g, '');
+
+        if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) {
+            return false;
+        }
+
+        let soma = 0;
+        let resto;
+
+        for (let i = 1; i <= 9; i++) {
+            soma += parseInt(cpf[i - 1]) * (11 - i);
+        }
+
+        resto = (soma * 10) % 11;
+        if (resto === 10 || resto === 11) resto = 0;
+        if (resto !== parseInt(cpf[9])) return false;
+
+        soma = 0;
+        for (let i = 1; i <= 10; i++) {
+            soma += parseInt(cpf[i - 1]) * (12 - i);
+        }
+
+        resto = (soma * 10) % 11;
+        if (resto === 10 || resto === 11) resto = 0;
+        if (resto !== parseInt(cpf[10])) return false;
+
+        return true;
+    }
+
+        $("#cpf").mask("000.000.000-00");
+
+        $("form").on("submit", function(e){
+            e.preventDefault();
+
+            if(!validateCpf($("#cpf").val())){
+                e.preventDefault();
+                $(".error").text("CPF inválido !");
+                $(".error").css("display","block");
+                return;
+            }
+
+            const data = {
+                "nome": $("#nome").val(),
+                "email": $("#email").val(),
+                "senha": $("#senha").val(),
+                "cpf": $("#cpf").val()
+            };
+
+            $.ajax({
+                "url": "http://localhost:8080/register",
+                "method": "POST",
+                "data": JSON.stringify(data),
+                "dataType": "json",
+                "contentType": "application/json",
+                "success": function(response){
+                    console.log(response);
+                },
+                "error": function(xhr,status,error){
+                    console.log(error);
+                }
+            })
+
+        })
+
+    </script>
+</body>
