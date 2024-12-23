@@ -1,0 +1,17 @@
+//estilos das páginas
+@import './modules/register.scss';
+@import './modules/index.scss';
+@import './modules/empresa.scss';
+@import './modules/criarEmpresa.scss';
+@import './modules/minhaEmpresa.scss';
+
+//fontes
+    //inter
+    @import 'https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap';
+
+*{
+    font-family: inter;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../assets/styles/style.css">
+    <link href="https://cdn.datatables.net/v/dt/dt-2.1.8/datatables.min.css" rel="stylesheet">
+    <script src="../assets/JS/jquery-3.7.1.min.js"></script>
+    <script src="../assets/JS/carhartl-jquery-cookie-92b7715/jquery.cookie.js"></script>
+    <script src="https://cdn.datatables.net/v/dt/dt-2.1.8/datatables.min.js"></script>
+    <title>Green Place</title>
+</head>
+<body>
+    <header class="index_header">
+        <h1>Green Place</h1>
+        <section class="action">
+            <a href="/pages/minhaEmpresa.html">
+                <img width="50" height="50" src="https://img.icons8.com/ios-filled/50/client-company.png" alt="client-company"/>
+            </a>
+            <a href="/pages/carrinho.html">
+                <img width="50" height="50" src="https://img.icons8.com/pulsar-color/50/shopping.png" alt="shopping"/>
+            </a>
+        </section>
+    </header>
+    </header>
+    <main class="main_carrinho">
+        <table class="produtos_table" id="produtosTable">
+            <thead>
+                <tr>
+                    <th>Categoria</th>
+                    <th>Produto</th>
+                    <th>Preço</th>
+                    <th>Quantidade</th>
+                    <th>Finalizar</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </main>
+    <script>
+            const user_id = $.cookie("user_id");
+            if (!user_id) {
+                window.location.href = "/pages/login";
+            }
+
+            let tabela;
+
+            $.ajax({
+                url: `http://localhost:8080/produtosCarrinho/${user_id}`,
+                method: "GET",
+                "error": (err) => console.log(err),
+                success: function (response) {
+                    console.log(response);
+
+                    tabela = $(".produtos_table").DataTable({
+                        data: response,
+                        destroy: true,
+                        responsive: true,
+                        columns: [
+                            {
+                                data: "id_categoria",
+                                render: function (data) {
+                                    const categorias = [
+                                        "Grãos e Cereais",
+                                        "Produtos Orgânicos",
+                                        "Sementes",
+                                        "Fertilizantes",
+                                        "Outros",
+                                    ];
+                                    return categorias[data - 1];
+                                },
+                            },
+                            { data: "produto" },
+                            {
+                                data: "valor_total",
+                                render: function (data) {
+                                    return `R$ ${parseFloat(data).toFixed(2)}`;
+                                },
+                            },
+                            { data: "qntd_estoque" },
+                            {
+                                data: null,
+                                render: function () {
+                                    return '<button class="finalizar-compra">Finalizar</button>';
+                                },
+                            },
+                        ],
+                    });
+                },
+            });
+
+            $("#produtosTable").on("click", ".finalizar-compra", function () {
+                const row = tabela.row($(this).closest("tr"));
+                const {id,produto,id_categoria,qntd_estoque,id_empresa_pertencente,valor_total} = row.data();
+
+                const data = JSON.stringify({
+                    "user_id": $.cookie("user_id"),
+                    "produto_id": id,
+                    "produto": produto,
+                    "id_categoria":id_categoria,
+                    "id_empresa_pertencente": id_empresa_pertencente,
+                    "qntd_estoque": qntd_estoque,
+                    "valor_total": valor_total
+                })
+
+                if (confirm(`Deseja finalizar a compra do produto "${produto}"?`)) {
+                    $.ajax({
+                        "url": `http://localhost:8080/finalizarCompra`,
+                        "method": "POST",
+                        "data": data,
+                        success: function (response) {
+                            alert("Compra finalizada com sucesso!");
+                            window.location.reload();
+                        },
+                        "error": (error) => console.log(error)
+                    });
+                }
+            });
+    </script>
+</body>
+</html>
