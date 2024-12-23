@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../assets/styles/style.css">
+    <script src="../assets/JS/jquery-3.7.1.min.js"></script>
+    <script src="../assets/JS/jQuery-Mask-Plugin-master/src/jquery.mask.js"></script>
+    <script src="../assets/JS/carhartl-jquery-cookie-92b7715/jquery.cookie.js"></script>
+    <title>Green Place</title>
+</head>
+<body>
+    <article class="register_container">
+        <form class="form_login" method="post">
+            <header>
+                <h1>Login</h1>
+            </header>
+            <label for="email">Email:</label>
+            <input placeholder="Digite o seu email" required type="email" id="email"/>
+            <label for="senha">Senha:</label>
+            <input placeholder="Digite a sua senha" required type="password" id="senha"/>
+            <button type="submit">Login</button>
+            <p class="error"></p>
+            <p style="color:aliceblue">
+                Não possui conta? 
+                <a style="color: aliceblue;" href="/pages/register.html">Registre-se</a>
+            </p>
+        </form>
+    </article>
+    
+
+    <script>
+
+        $(".form_login").on("submit", function(e){
+            e.preventDefault();
+
+            if(!$("#email").val() || !$("#senha").val()){
+                e.preventDefault();
+                $(".error").text("Digite email e senha válida !");
+            }
+
+            const data = JSON.stringify({
+                "email": $("#email").val(),
+                "senha": $("#senha").val()
+            });
+
+            $.ajax({
+                "url": "http://localhost:8080/login",
+                "method": "POST",
+                "data": data,
+                "success": function(data){
+                    //salvando o id do usuário em cookies ao invés de localStorage
+                    //por ser mais seguro.
+                    $.cookie("user_id", data.id);
+                    window.location.href = "/pages/";
+                },
+                "error": function () { 
+                    $(".error").text("Ops, algum dado foi preenchido incorretamente !");
+                    $(".error").css("display","block");
+                 }
+            })
+
+        })
+
+    </script>
+</body>

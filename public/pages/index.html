@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../assets/styles/style.css">
+    <script src="../assets/JS/jquery-3.7.1.min.js"></script>
+    <script src="../assets/JS/carhartl-jquery-cookie-92b7715/jquery.cookie.js"></script>
+    <title>Green Place</title>
+</head>
+<body>
+    <header class="index_header">
+        <h1>Green Place</h1>
+        <section class="action">
+            <p style="cursor: pointer;" class="sair">Sair</p>
+            <a href="/pages/minhaEmpresa.html">
+                <img width="50" height="50" src="https://img.icons8.com/ios-filled/50/client-company.png" alt="client-company"/>
+            </a>
+            <a href="/pages/carrinho.html">
+                <img width="50" height="50" src="https://img.icons8.com/pulsar-color/50/shopping.png" alt="shopping"/>
+            </a>
+        </section>
+    </header>
+    <main class="main_index">
+        <article class="empresas">
+        </article>
+    </main>
+
+    <script>
+
+        if(!$.cookie("user_id")){
+            window.location.href = "/pages/login.html";
+        }
+
+        $(".sair").on("click",() => {
+            $.removeCookie("user_id");
+            window.location.reload();
+        })
+
+        $.ajax({
+            "url": "http://localhost:8080/empresas",
+            "method": "GET",
+            "success": function(data){
+                data.forEach((element) => {
+                    $(".empresas").append(
+                        `
+                            <section class='empresa'>
+                                <a href='/pages/empresa.html?id=${element.id}'>
+                                    <img width='50' height='50' src='https://img.icons8.com/ios-filled/50/company.png' alt='company'/>
+                                    <p class='nome_empresa'>${element.nome}</p>
+                                </a>
+                            </section> 
+                        `
+                    )
+                })
+            }
+        })
+    </script>
+
+</body>
+</html>
