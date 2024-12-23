@@ -18,11 +18,20 @@ Configure o banco de dados, adicionando um arquvio .env com os seguintes campos:
   database.default.port = [sua configuração]
 ```
 
-E logo após, crie um banco de dados chamado "agro" e execute os seguintes comandos:
+E logo após, crie um banco de dados chamado "agro" e adicione suas tabelas a partir dos seguintes comandos:
+```
+    php spark db:create agro
+    php spark migrate
+```
+
+Logo após, populeo banco de dados na seguinte ordem:
 
 ```
-  php spark migrate
   php spark db:seed
+    categorias
+    clientes
+    empresas
+    produtos
 ```
 
 Logo após, execute o comando:
